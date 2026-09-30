@@ -97,12 +97,9 @@ Como `c2` não aceita `\n`, a quebra de linha fica fora do comentário.
 | real | 4 | antes, parte inteira, após o ponto, parte fracionária |
 | comentário | 3 | antes, uma barra, dentro do comentário |
 
-## O nível que me deu mais trabalho
+## O nível que me deu mais trabalho 
 
-> **Preencha com a sua experiência real** — esta seção vale 10% e é sobre o que
-> aconteceu com você. Responda: qual nível travou, o que estava errado na primeira
-> tentativa e como você percebeu (qual saída do `testar.py` mostrou o problema).
->
-> Erros comuns, se algum deles for o seu: marcar `r2` como final (`12.` passa);
-> esquecer o `de(PONTO, ...)` em `r1`; colocar laço em `a0` (`==` vira um token só);
-> usar `SIGMA` sem tirar `'\n'` no comentário (engole as linhas seguintes).
+O nível 4 (literal real) foi o que exigiu mais cuidado, porque é o único autômato com quatro estados e com uma armadilha na escolha dos estados finais. 
+Para entender o problema, testei o erro de propósito: marquei `r2`, o estado logo depois do ponto, como final (`finais=['r2', 'r3']`). O `testar.py` falhou no nível 4 com a entrada `'12.'`. O esperado era erro léxico, mas o obtido foi `[('REAL', '12.')]`. O analisador aceitava `12.` como número real. 
+A causa é que, em `r2`, eu já li os dígitos e o ponto, mas ainda não li nenhum dígito depois dele. Um real válido precisa de pelo menos um dígito na parte fracionária, então `r2` não pode ser de aceitação. Só `r3`, que lembra "já vi ao menos um dígito depois do ponto", pode ser final. 
+Corrigi voltando para `finais=['r3']`. Com isso, `12.` não casa como REAL e o analisador lê `12` como INTEIRO, depois reporta erro no `.`. O nível 4 passou e os seguintes continuaram passando. Aprendi que o que define se um estado é final é o que ele lembra, não a posição dele no desenho.
