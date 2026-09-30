@@ -50,27 +50,34 @@ afd_branco = afd(
 # NIVEL 1 --- literal inteiro:  um ou mais digitos.   Ex: 0  42  13
 # ======================================================================
 afd_inteiro = afd(
-    estados=['n0'],          # TODO
-    transicoes={},           # TODO
+    estados=['n0', 'n1'],
+    transicoes={
+        'n0': de(DIGITOS, 'n1'),
+        'n1': de(DIGITOS, 'n1'),
+    },
     inicial='n0',
-    finais=[],               # TODO
+    finais=['n1'],
 )
 
 # ======================================================================
 # NIVEL 2 --- atribuicao e ponto e virgula: um caractere cada.
 # ======================================================================
 afd_atrib = afd(
-    estados=['a0'],          # TODO
-    transicoes={},           # TODO
+    estados=['a0', 'a1'],
+    transicoes={
+        'a0': de(IGUAL, 'a1'),
+    },
     inicial='a0',
-    finais=[],               # TODO
+    finais=['a1'],
 )
 
 afd_pvirg = afd(
-    estados=['p0'],          # TODO
-    transicoes={},           # TODO
+    estados=['p0', 'p1'],
+    transicoes={
+        'p0': de(PVIRG, 'p1'),
+    },
     inicial='p0',
-    finais=[],               # TODO
+    finais=['p1'],
 )
 
 # ======================================================================
@@ -85,10 +92,15 @@ afd_pvirg = afd(
 # o que acontece se a palavra terminar logo depois do ponto.
 # ======================================================================
 afd_real = afd(
-    estados=['r0'],          # TODO quantos estados?
-    transicoes={},           # TODO
+    estados=['r0', 'r1', 'r2', 'r3'],
+    transicoes={
+        'r0': de(DIGITOS, 'r1'),
+        'r1': {**de(DIGITOS, 'r1'), **de(PONTO, 'r2')},
+        'r2': de(DIGITOS, 'r3'),
+        'r3': de(DIGITOS, 'r3'),
+    },
     inicial='r0',
-    finais=[],               # TODO
+    finais=['r3'],           # r2 (logo apos o ponto) NAO e final
 )
 
 # ======================================================================
@@ -101,10 +113,14 @@ afd_real = afd(
 # Dica: SIGMA - {'\n'} e tudo menos a quebra de linha.
 # ======================================================================
 afd_comentario = afd(
-    estados=['c0'],          # TODO
-    transicoes={},           # TODO
+    estados=['c0', 'c1', 'c2'],
+    transicoes={
+        'c0': de(BARRA, 'c1'),
+        'c1': de(BARRA, 'c2'),
+        'c2': de(SIGMA - {'\n'}, 'c2'),
+    },
     inicial='c0',
-    finais=[],               # TODO
+    finais=['c2'],
 )
 
 # ======================================================================
@@ -126,8 +142,13 @@ REGRAS = [
 # Uma palavra reservada e um identificador que esta nesta tabela.
 # ======================================================================
 PALAVRAS = {
-    # TODO nivel 3: 'inteiro', 'real' e 'logico', todos para 'TIPO'
-    # TODO nivel 5: 'verdadeiro' e 'falso', ambos para 'LOGICO'
+    # nivel 3
+    'inteiro': 'TIPO',
+    'real': 'TIPO',
+    'logico': 'TIPO',
+    # nivel 5
+    'verdadeiro': 'LOGICO',
+    'falso': 'LOGICO',
 }
 
 DESCARTAR = {'COMENTARIO', 'BRANCO'}
